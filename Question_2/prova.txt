@@ -1,0 +1,8 @@
+//asffasdf 3214;;asd123
+ assign 300 to d;//?4!|(/&:
+/* assign 3 to a;
+fasdf
+dsf
+sdf
+sdf
+sdf*/assign 213 to q;

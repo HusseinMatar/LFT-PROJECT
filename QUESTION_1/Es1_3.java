@@ -62,6 +62,6 @@ public class Es1_3
 
     public static void main(String[] args)
     {
-	System.out.println(scan("1Bianchi") ? "OK" : "NOPE");
+	System.out.println(scan("23Bianchi") ? "OK" : "NOPE");
     }
 }
