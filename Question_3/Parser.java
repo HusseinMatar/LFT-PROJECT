@@ -26,13 +26,6 @@ public class Parser {
 		} else error(ErrorMessages.SYNTAX_ERROR);
 	}
 
-	public void start() {
-		// ... completare ...
-		expr();
-		match(Tag.EOF);
-		// ... completare ...
-	}
-
 
 	private void expr() {
 		// ... completare ...
@@ -74,12 +67,15 @@ public class Parser {
 	}
 
 	private void exprlist(){
+	
 		expr();
 		exprlistp();
+
+	
 	}
 
 	private void exprlistp(){
-		if (look.tag == ','){
+		if (look.tag == ',' ){
 			match(look.tag);
 			expr();
 			exprlistp();
@@ -205,8 +201,9 @@ public class Parser {
 					else if(look.tag == Tag.ELSE){
 						match(look.tag);
 						stat();
-						if(look.tag == Tag.END || look.tag == Tag.EOF){
+						if(look.tag == Tag.END ){
 							match(look.tag);
+							
 						}else{
 							error(String.format(ErrorMessages.ERROR, "missing end statement with else", look.tag));
 						} 
@@ -245,9 +242,7 @@ public class Parser {
 
 	private void idlistp(){
 		if (
-			look.tag == ','        || 
-			look.tag == Tag.END    || 
-			look.tag == Tag.OPTION 
+			look.tag == ','
 		){
 			match(look.tag);
 			if(look.tag == Tag.ID){
@@ -268,7 +263,7 @@ public class Parser {
 	}
 
 	private void optlistp(){
-		if(look.tag == Tag.OPTION){
+		if(look.tag == Tag.OPTION ){ 
 			optitem();
 			optlistp();
 		}
@@ -312,7 +307,7 @@ public class Parser {
 
 	public static void main(String[] args) {
 		Lexer lex = new Lexer();
-		String path = "prova.txt";
+		String path = "error1.txt";
 		try {
 		BufferedReader br = new BufferedReader(new FileReader(path));
 		Parser parser = new Parser(lex, br);
