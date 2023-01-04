@@ -28,7 +28,6 @@ public class Parser {
 
 
 	private void expr() {
-		// ... completare ...
 		switch(look.tag){
 		case '+':
 		case '*':
@@ -144,6 +143,7 @@ public class Parser {
 					exprlist();
 					if(look.tag == ']'){
 						match(look.tag);
+						
 					} else {
 						error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat", look.tag));
 					}
@@ -307,7 +307,7 @@ public class Parser {
 
 	public static void main(String[] args) {
 		Lexer lex = new Lexer();
-		String path = "error1.txt";
+		String path = "prova1.txt";
 		try {
 		BufferedReader br = new BufferedReader(new FileReader(path));
 		Parser parser = new Parser(lex, br);
