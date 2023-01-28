@@ -41,9 +41,9 @@ public class Translator {
                 Tag.COND == look.tag ||
                 look.tag == '{') {
             int lnext_prog = code.newLabel();
-            System.out.println("here" + lnext_prog);
+
             statlist(lnext_prog);
-            System.out.println("here1 " + lnext_prog);
+
             code.emitLabel(lnext_prog);
             match(Tag.EOF);
             try {
@@ -51,6 +51,7 @@ public class Translator {
             } catch (java.io.IOException e) {
                 System.out.println("IO error\n");
             }
+
         } else {
             error(String.format(ErrorMessages.ERROR, "prog", look.tag));
         }
@@ -89,11 +90,10 @@ public class Translator {
         switch (look.tag) {
             case Tag.ASSIGN:
                 match(look.tag);
-                expr();
+                expr(false);
                 if (look.tag == Tag.TO) {
                     match(look.tag);
-                    idlist(l_next);
-                    code.emit(OpCode.istore, l_next);
+                    idlist(l_next, false);
                 } else {
                     error(String.format(ErrorMessages.ERROR, "stat", look.tag));
                 }
@@ -103,32 +103,32 @@ public class Translator {
                 match(look.tag);
                 if (look.tag == '[') {
                     match(look.tag);
-                    exprlist();
-                    if (look.tag == ']') {
-                        match(look.tag);
-                        code.emit(OpCode.invokestatic, 1);
-                    } else {
-                        error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat", look.tag));
-                    }
-                } else {
+                    exprlist(true);
+
+                    // if (look.tag == ']') {
+                    //     match(look.tag);
+                    //     code.emit(OpCode.invokestatic, 1);
+                    // } else {
+                    //     error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat", look.tag));
+                    // }
+                } /*else {
                     error(String.format(ErrorMessages.ERROR, "stat", look.tag));
-                }
+                }*/
                 break;
 
             case Tag.READ:
                 match(look.tag);
                 if (look.tag == '[') {
                     match(look.tag);
-                    idlist(l_next);
-                    if (look.tag == ']') {
-                        match(look.tag);
-                        code.emit(OpCode.invokestatic, 0);
-                        code.emit(OpCode.istore, l_next);
-                    } else {
-                        error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat", look.tag));
-                    }
-                } else {
-                    error(String.format(ErrorMessages.ERROR, "stat", look.tag));
+                    idlist(l_next, true);
+                    // if (look.tag == ']') {
+                    // match(look.tag);
+                    // code.emit(OpCode.invokestatic, 0);
+                    // code.emit(OpCode.istore, l_next);
+                    // } else {
+                    // error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat",
+                    // look.tag));
+                    // }
                 }
                 break;
 
@@ -204,43 +204,97 @@ public class Translator {
         }
     }
 
-    private void idlist(int l_next) {
+    private void idlist(int l_next, boolean flagRead) {
         if (look.tag == Tag.ID) {
             int id_addr = st.lookupAddress(((Word) look).lexeme);
             if (id_addr == -1) {
                 id_addr = count;
                 st.insert(((Word) look).lexeme, count++);
             }
-            match(Tag.ID);
+
+            if(flagRead){
+                code.emit(OpCode.invokestatic, 0);
+            }
+        
+            code.emit(OpCode.istore, id_addr);
+            match(look.tag);
+            if (look.tag == ']') {
+                match(look.tag);
+            } else if(flagRead && look.tag != ',') {
+                error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat", look.tag));
+            }else{
+                idlistp(l_next, flagRead);
+            }
         } else {
             error(String.format(ErrorMessages.ERROR, "idlist", look.tag));
         }
     }
 
-    private void expr( /* completare */ ) {
+    private void idlistp(int l_next, boolean flagRead) {
+        if (look.tag == ',') {
+            match(look.tag);
+            idlist(l_next, flagRead);
+            // if (look.tag == Tag.ID) {
+            //     int id_addr = st.lookupAddress(((Word) look).lexeme);
+            //     if (id_addr == -1) {
+            //         id_addr = count;
+            //         st.insert(((Word) look).lexeme, count++);
+            //     }
+            //     code.emit(OpCode.invokestatic, 0);
+            //     code.emit(OpCode.istore, id_addr);
+            //     match(look.tag);
+            //     if(look.tag == ']'){
+            //         match(look.tag);
+            //     }else{
+            //         idlistp();
+            //     }
+            // }
+        }
+    }
+
+    private void expr( boolean flagprint ) {
         switch (look.tag) {
             case '-':
-                match('-');
-                expr();
-                expr();
+                match(look.tag);
+                expr(false);
+                expr(false);
                 code.emit(OpCode.isub);
+                if(flagprint){
+                    if(look.tag == ']'){
+                        match(look.tag);        
+                    }
+                    code.emit(OpCode.invokestatic, 1);
+                }
                 break;
 
             case '/':
-                match('/');
-                expr();
-                expr();
+                match(look.tag);
+                expr(false);
+                expr(false);
                 code.emit(OpCode.idiv);
+                if(flagprint){
+                    if(look.tag == ']'){
+                        match(look.tag);        
+                    }
+                    code.emit(OpCode.invokestatic, 1);
+                }
                 break;
 
             case '+':
                 match(look.tag);
                 if (look.tag == '(') {
                     match(look.tag);
-                    exprlist();
+                    exprlist(false);
                     if (look.tag == ')') {
                         match(look.tag);
                         code.emit(OpCode.iadd);
+                        if(flagprint){
+                            if(look.tag == ']'){
+                                match(look.tag);        
+                            }
+                        
+                            code.emit(OpCode.invokestatic, 1);
+                        }
                     } else {
                         error(String.format(ErrorMessages.MISSING_END_PARANTHESIS_ERROR, look.tag));
                     }
@@ -253,10 +307,17 @@ public class Translator {
                 match(look.tag);
                 if (look.tag == '(') {
                     match(look.tag);
-                    exprlist();
+                    exprlist(false);
                     if (look.tag == ')') {
                         match(look.tag);
                         code.emit(OpCode.imul);
+                        if(flagprint){
+                            if(look.tag == ']'){
+                                match(look.tag);        
+                            }
+                        
+                            code.emit(OpCode.invokestatic, 1);
+                        }
                     } else {
                         error(String.format(ErrorMessages.MISSING_END_PARANTHESIS_ERROR, look.tag));
                     }
@@ -266,8 +327,27 @@ public class Translator {
                 break;
 
             case Tag.ID:
-            case Tag.NUM:
+                int addr = st.lookupAddress((((Word) look).lexeme));
+                code.emit(OpCode.iload, addr);
+                if(flagprint){
+                    code.emit(OpCode.invokestatic, 1);
+                }
                 match(look.tag);
+    
+                if(look.tag == ']'){
+                    match(look.tag);
+                }
+                break;
+
+            case Tag.NUM:
+                code.emit(OpCode.ldc, (((NumberTok) look).lexeme));
+                match(look.tag);
+                if(flagprint){
+                    code.emit(OpCode.invokestatic, 1);
+                }
+                if(look.tag == ']'){
+                    match(look.tag);
+                }
                 break;
             case Tag.EOF:
                 match(look.tag);
@@ -282,38 +362,38 @@ public class Translator {
         if (look.tag == Tag.RELOP) {
             if (look == Word.eq) {
                 match(look.tag);
-                expr();
-                expr();
+                expr(false);
+                expr(false);
                 code.emit(OpCode.if_icmpeq, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.lt) {
                 match(look.tag);
-                expr();
-                expr();
+                expr(false);
+                expr(false);
                 code.emit(OpCode.if_icmplt, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.le) {
                 match(look.tag);
-                expr();
-                expr();
+                expr(false);
+                expr(false);
                 code.emit(OpCode.if_icmple, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.ge) {
                 match(look.tag);
-                expr();
-                expr();
+                expr(false);
+                expr(false);
                 code.emit(OpCode.if_icmpge, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.gt) {
                 match(look.tag);
-                expr();
-                expr();
+                expr(false);
+                expr(false);
                 code.emit(OpCode.if_icmpgt, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.ne) {
                 match(look.tag);
-                expr();
-                expr();
+                expr(false);
+                expr(false);
                 code.emit(OpCode.if_icmpne, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else {
@@ -324,27 +404,17 @@ public class Translator {
         }
     }
 
-    private void exprlistp() {
+    private void exprlistp(boolean flagprint) {
         if (look.tag == ',') {
             match(look.tag);
-            expr();
-            exprlistp();
+            expr(flagprint);
+            exprlistp(flagprint);
         }
     }
 
-    private void exprlist() {
-        expr();
-        exprlistp();
-    }
-
-    private void idlistp() {
-        if (look.tag == ',') {
-            match(look.tag);
-            if (look.tag == Tag.ID) {
-                match(look.tag);
-                idlistp();
-            }
-        }
+    private void exprlist(boolean flagprint) {
+        expr(flagprint);
+        exprlistp(flagprint);
     }
 
     private void optlist() {
@@ -391,7 +461,7 @@ public class Translator {
 
     public static void main(String[] args) {
         Lexer lex = new Lexer();
-        String path = "prova.lft";
+        String path = "prova1.lft";
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             Translator translator = new Translator(lex, br);
