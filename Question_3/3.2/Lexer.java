@@ -34,40 +34,45 @@ public class Lexer {
         return ch;
     }
 
-    private void skipSingleLineComment(BufferedReader br){
-        while(peek != '\n' && peek != (char) -1){
+    private void skipComments(BufferedReader br, boolean lines) {
+        if (lines) {
+            if (peek == '/' && peekChar(br) == '*') {
+                readch(br);
+                readch(br);
+            }
+
+            while (!(peek == '*' && peekChar(br) == '/') && peek != (char) -1) {
+                if (peek == '\n')
+                    line++;
+                readch(br);
+            }
+
+            if (peek == (char) -1) {
+                throw new RuntimeException("Error: The comment isn't closed properly.");
+            }
+
             readch(br);
-        }
-        skipSpaces(br);
-    }
-
-    private void skipMultipleLinesComment(BufferedReader br){
-        readch(br);
-        readch(br); //to surpass /*
-        while(!(peek == '*' && peekChar(br) == '/') && peek != (char) -1 ){
-            if(peek == '\n') line ++;
             readch(br);
-        }
+            skipSpaces(br);
 
-        if( peek == (char) -1){
-            throw new RuntimeException("Error: The comment isn't closed correctly!");
+        } else {
+            while (peek != '\n' && peek != (char) -1) {
+                readch(br);
+            }
+            skipSpaces(br);
         }
-
-        readch(br);
-        readch(br);
-        skipSpaces(br);
     }
 
     public Token lexical_scan(BufferedReader br) {
 
         skipSpaces(br);
         
-        if(peek == '/' && peekChar(br) == '/'){
-            skipSingleLineComment(br);
-        }
-        if(peek == '/' && peekChar(br) == '*'){
-            skipMultipleLinesComment(br);
-        }
+        while(peek == '/' && (peekChar(br) == '*' || peekChar(br) == '/')){
+            if(peekChar(br) == '*')
+              skipComments(br, true);
+            else if(peekChar(br) == '/')
+              skipComments(br, false);
+          }
 
 
         switch (peek) {
