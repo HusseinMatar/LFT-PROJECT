@@ -171,7 +171,7 @@ public class Translator {
                 match(look.tag);
                 if (look.tag == '[') {
                     match(look.tag);
-                    optlist();
+                    optlist(l_next);
                     if (look.tag == ']') {
                         match(look.tag);
                     } else {
@@ -185,7 +185,6 @@ public class Translator {
                         stat(l_next);
                         if (look.tag == Tag.END) {
                             match(look.tag);
-
                         } else {
                             error(String.format(ErrorMessages.ERROR, "missing end statement with else", look.tag));
                         }
@@ -218,7 +217,7 @@ public class Translator {
         
             code.emit(OpCode.istore, id_addr);
             match(look.tag);
-            if (look.tag == ']') {
+            if (flagRead && look.tag == ']') {
                 match(look.tag);
             } else if(flagRead && look.tag != ',') {
                 error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat", look.tag));
@@ -417,34 +416,41 @@ public class Translator {
         exprlistp(flagprint);
     }
 
-    private void optlist() {
+    private void optlist(int l_next) {
         if (look.tag == Tag.OPTION) {
-            optitem();
-            optlistp();
+            int w_next = code.newLabel();
+            optitem(w_next, l_next);
+            code.emitLabel(w_next);
+            optlistp(l_next);
         } else {
             error(String.format(ErrorMessages.ERROR, "optlist", look.tag));
         }
 
     }
 
-    private void optlistp() {
+    private void optlistp(int l_next) {
         if (look.tag == Tag.OPTION) {
-            optitem();
-            optlistp();
+            int w_next = code.newLabel();
+            optitem(w_next, l_next);
+            code.emitLabel(w_next);
+            optlistp(l_next);
         }
     }
 
-    private void optitem() {
+    private void optitem(int w_next, int l_next) {
         if (look.tag == Tag.OPTION) {
             match(look.tag);
             if (look.tag == '(') {
                 match(look.tag);
-                bexpr(0, 0);
+                int l_true = code.newLabel();
+                bexpr(l_true, w_next);
                 if (look.tag == ')') {
                     match(look.tag);
+                    code.emitLabel(l_true);
                     if (look.tag == Tag.DO) {
                         match(look.tag);
-                        stat(0);
+                        stat(l_next);
+                        code.emit(OpCode.GOto, l_next);
                     } else {
                         error("Missing DO Tag! Found " + look.tag);
                     }
@@ -461,7 +467,7 @@ public class Translator {
 
     public static void main(String[] args) {
         Lexer lex = new Lexer();
-        String path = "prova1.lft";
+        String path = "tests/1.lft";
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             Translator translator = new Translator(lex, br);

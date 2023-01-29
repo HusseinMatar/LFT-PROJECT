@@ -6,17 +6,44 @@ print[x, y, z]
 read[y, z];
 print[- 60 / 55 +(*(*(2,5), y), z)] 
 
+------------------------------------------
 
 a = 4
 b = 5
 c = 1
 d = 4
 print -> 4, 5, 1, 4, 20, -1
-*/
+
 
 read[a, b];
 assign - b a to c;
 assign +(3, c) to d;
 print[a, b, c, d, *(a, b), / 23 - c +(*(a, b), d)]
+
+---------------------------------------------------
+
+read[n];
+assign 2 to i;
+assign 1 to f;
+while (<= i n){
+	assign *(f,i) to f;
+	assign +(i,1) to i
+};
+print[f]
+---------------------------------------------------
+
+read[a,b];
+while (<> a b)
+	conditional [ option (> a b) do assign - a b to a ]
+	else assign - b a to b end;
+print[a, b] */
+
+read[x,y,z];
+conditional [
+	option (> x y) do conditional [ option (> x z) do print[x] ] else print[z] end 
+	]
+else
+	conditional [ option (> y z) do print[y] ] else print[z] end
+end
 
 
