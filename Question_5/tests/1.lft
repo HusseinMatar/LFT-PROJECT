@@ -1,6 +1,20 @@
-assign 14 to a;
+read[x, y, z];
+print[*(x, y, z)]
+
+/*assign 14 to a;
 assign 15 to b;
 print[a, b];
 read[x, y, z];
 print[x, y, z];
-print[- 60 / 55 +(*(*(2,5), y), z)]
+print[- 60 / 55 +(*(*(2,5), y), z)] */
+
+/* assign 4 to a,b;
+print[a,b];
+read[_x1, y_1];
+
+assign -_x1 y_1 to _x1;
+
+assign - y_1 _x1 to y_1;
+print[y_1, *(_x1, y_1, 1000), 25] */
+
+//commento

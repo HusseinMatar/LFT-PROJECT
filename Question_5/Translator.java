@@ -90,7 +90,7 @@ public class Translator {
         switch (look.tag) {
             case Tag.ASSIGN:
                 match(look.tag);
-                expr(false);
+                expr(false, false, false);
                 if (look.tag == Tag.TO) {
                     match(look.tag);
                     idlist(l_next, false);
@@ -103,7 +103,7 @@ public class Translator {
                 match(look.tag);
                 if (look.tag == '[') {
                     match(look.tag);
-                    exprlist(true);
+                    exprlist(true, false, false);
 
                     // if (look.tag == ']') {
                     //     match(look.tag);
@@ -251,12 +251,12 @@ public class Translator {
         }
     }
 
-    private void expr( boolean flagprint ) {
+    private void expr( boolean flagprint, boolean flagSum, boolean flagMul) {
         switch (look.tag) {
             case '-':
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.isub);
                 if(flagprint){
                     if(look.tag == ']'){
@@ -268,8 +268,8 @@ public class Translator {
 
             case '/':
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.idiv);
                 if(flagprint){
                     if(look.tag == ']'){
@@ -283,10 +283,10 @@ public class Translator {
                 match(look.tag);
                 if (look.tag == '(') {
                     match(look.tag);
-                    exprlist(false);
+                    exprlist(false, true, false);
                     if (look.tag == ')') {
                         match(look.tag);
-                        code.emit(OpCode.iadd);
+                        //code.emit(OpCode.iadd);
                         if(flagprint){
                             if(look.tag == ']'){
                                 match(look.tag);        
@@ -306,10 +306,10 @@ public class Translator {
                 match(look.tag);
                 if (look.tag == '(') {
                     match(look.tag);
-                    exprlist(false);
+                    exprlist(false, false, true);
                     if (look.tag == ')') {
                         match(look.tag);
-                        code.emit(OpCode.imul);
+                        //code.emit(OpCode.imul);
                         if(flagprint){
                             if(look.tag == ']'){
                                 match(look.tag);        
@@ -340,6 +340,7 @@ public class Translator {
 
             case Tag.NUM:
                 code.emit(OpCode.ldc, (((NumberTok) look).lexeme));
+                
                 match(look.tag);
                 if(flagprint){
                     code.emit(OpCode.invokestatic, 1);
@@ -357,42 +358,57 @@ public class Translator {
         }
     }
 
+    private void exprlistp(boolean flagprint, boolean flagSum, boolean flagMul) {
+        if (look.tag == ',') {
+            match(look.tag);
+            expr(flagprint, flagSum, flagMul);
+            if(flagSum) code.emit(OpCode.iadd);
+            if(flagMul) code.emit(OpCode.imul);
+            exprlistp(flagprint, flagSum, flagMul);
+        }
+    }
+
+    private void exprlist(boolean flagprint, boolean flagSum, boolean flagMul) {
+        expr(flagprint, flagSum, flagMul);
+        exprlistp(flagprint, flagSum, flagMul);
+    }
+
     private void bexpr(int l_true, int l_false) {
         if (look.tag == Tag.RELOP) {
             if (look == Word.eq) {
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.if_icmpeq, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.lt) {
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.if_icmplt, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.le) {
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.if_icmple, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.ge) {
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.if_icmpge, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.gt) {
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.if_icmpgt, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else if (look == Word.ne) {
                 match(look.tag);
-                expr(false);
-                expr(false);
+                expr(false, false, false);
+                expr(false, false, false);
                 code.emit(OpCode.if_icmpne, l_true);
                 code.emit(OpCode.GOto, l_false);
             } else {
@@ -401,19 +417,6 @@ public class Translator {
         } else {
             error(String.format(ErrorMessages.ERROR, "bexpr", look.tag));
         }
-    }
-
-    private void exprlistp(boolean flagprint) {
-        if (look.tag == ',') {
-            match(look.tag);
-            expr(flagprint);
-            exprlistp(flagprint);
-        }
-    }
-
-    private void exprlist(boolean flagprint) {
-        expr(flagprint);
-        exprlistp(flagprint);
     }
 
     private void optlist(int l_next) {
@@ -467,7 +470,7 @@ public class Translator {
 
     public static void main(String[] args) {
         Lexer lex = new Lexer();
-        String path = "tests/1.lft";
+        String path = "prova1.lft";
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             Translator translator = new Translator(lex, br);
