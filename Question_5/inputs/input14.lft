@@ -1,0 +1,14 @@
+print[*(3,4,+(*(1,2), - 7 6)), 1]; //stampa 36 , 1
+read[x, y, z]; 
+assign 5 to _max;
+print[x, y, z];
+conditional[
+	option (> x _max) do assign x to _max 
+	option (> y _max) do assign y to _max 
+	option (> z _max) do assign z to _max 
+] else {
+	assign 12 to _max;
+	print[_max]	/* stampa -1 */
+}
+end;
+print[_max]

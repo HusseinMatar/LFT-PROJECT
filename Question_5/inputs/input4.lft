@@ -1,3 +1,5 @@
+//a and b should be moltipli
+
 read[a,b];
 while (<> a b)
 	conditional [ option (> a b) do assign - a b to a ]

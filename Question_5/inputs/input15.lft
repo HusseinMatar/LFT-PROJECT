@@ -1,0 +1,7 @@
+read[a_1, _2b];
+while(<> a_1 _2b)
+	conditional [option (> a_1 _2b) do assign - a_1 _2b to a_1]
+	else assign - _2b a_1 to _2b end;
+print [a_1, +(a_1 , _2b, 100), 2023];
+assign 022 to c,d;
+print[c,d]

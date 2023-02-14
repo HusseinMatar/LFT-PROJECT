@@ -1,0 +1,5 @@
+read[a];
+assign +(0,1) to b;
+while (<> a 5)
+	conditional [ option (> a 2) do assign +(a,2) to a ] else assign + (a,b) to a end;
+print[a]

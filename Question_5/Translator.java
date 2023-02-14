@@ -148,7 +148,7 @@ public class Translator {
                     } else {
                         error(String.format(ErrorMessages.MISSING_END_PARANTHESIS_ERROR, "stat", look.tag));
                     }
-                    stat(l_next);
+                    stat(begin);
                     code.emit(OpCode.GOto, begin);
                     code.emitLabel(l_false);
 
@@ -472,7 +472,7 @@ public class Translator {
 
     public static void main(String[] args) {
         Lexer lex = new Lexer();
-        String path = "assigns.lft";
+        String path = "inputs/input9.lft";
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             Translator translator = new Translator(lex, br);

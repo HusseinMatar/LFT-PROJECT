@@ -1,0 +1,9 @@
+read[a];
+assign +(2,a, 2) to x, y, z, w;
+print[x, y, z, w];
+
+read[b];
+while(<> b 0){
+	assign - b 1 to b;
+	print[b]
+}

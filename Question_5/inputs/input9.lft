@@ -1,23 +1,28 @@
 read[x,y,z];
 print[x, y, +(3,2)];
 
+assign x to w;
+
 conditional[
- option (> 7 2) do {
+ option (> x 4) do {
   assign x to y,w;
   assign 2 to x
  }
- option (<> y 1) do print [y]
+ option (<> y 11) do print [y]
  option (== 3 w) do {
   conditional[
    option (<> 12 z) do read[z]
    option (<= y 3) do assign /30 3 to x,y,z   
   ]else 
-   read[w]
+   print[w]
   end
  }
 ] else 
- print[x, y]
+ print[999]
 end;
+
+print[w,z];
+
 conditional [
  option (>= 10 9) do assign 20 to x,y,z,w
 ] end
