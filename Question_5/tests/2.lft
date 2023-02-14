@@ -6,6 +6,6 @@ print -> 4, 5, 1, 4, 20, -1*/
 
 
 read[a, b];
-assign - b a to c;
-assign +(3, c) to d;
+assign - b a to c,d;
+//assign +(3, c) to d;
 print[a, b, c, d, *(a, b), / 23 - c +(*(a, b), d)]

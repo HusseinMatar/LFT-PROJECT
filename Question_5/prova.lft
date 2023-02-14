@@ -1,4 +1,4 @@
-read[x,y,z]
+read[x,y,z];
 print[x, y, +(3,2)];
 
 conditional[

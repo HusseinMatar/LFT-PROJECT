@@ -1,3 +1,5 @@
+// won't compile -> put every test case in a separate file to be more structured
+/*
 /*assign 14 to a;
 assign 15 to b;
 print[a, b];
@@ -117,3 +119,8 @@ conditional[
 end;
 print[6];
 print[_max]
+
+*/
+
+assign 20 to x,y,z,w;
+print[x,y,z,w]

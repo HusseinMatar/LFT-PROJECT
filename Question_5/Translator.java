@@ -216,22 +216,24 @@ public class Translator {
             }
         
             code.emit(OpCode.istore, id_addr);
+
             match(look.tag);
             if (flagRead && look.tag == ']') {
                 match(look.tag);
             } else if(flagRead && look.tag != ',') {
                 error(String.format(ErrorMessages.MISSING_END_BRACKETS_ERROR, "stat", look.tag));
             }else{
-                idlistp(l_next, flagRead);
+                idlistp(l_next, flagRead, id_addr);
             }
         } else {
             error(String.format(ErrorMessages.ERROR, "idlist", look.tag));
         }
     }
 
-    private void idlistp(int l_next, boolean flagRead) {
+    private void idlistp(int l_next, boolean flagRead, int id_addr) {
         if (look.tag == ',') {
             match(look.tag);
+            if(id_addr > -1) code.emit(OpCode.iload, id_addr);
             idlist(l_next, flagRead);
             // if (look.tag == Tag.ID) {
             //     int id_addr = st.lookupAddress(((Word) look).lexeme);
@@ -470,7 +472,7 @@ public class Translator {
 
     public static void main(String[] args) {
         Lexer lex = new Lexer();
-        String path = "prova1.lft";
+        String path = "assigns.lft";
         try {
             BufferedReader br = new BufferedReader(new FileReader(path));
             Translator translator = new Translator(lex, br);
